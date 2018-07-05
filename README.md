@@ -15,7 +15,7 @@
 * **文本的预处理(cut_text.py)**：用于分词、剔除停用词(这里偷懒直接把长度为1的剔除)；<br>
 ``` python
 texts = ['我爱北京天安门', '我爱北京长城']
-print('results:', cut_texts(texts=texts, need_cut=True, word_len=2))
+results = cut_texts(texts=texts, need_cut=True, word_len=2)
 
 results: [['北京', '天安门'], ['北京', '长城']]
 ```
@@ -30,7 +30,6 @@ model_word2vec = creat_dict(texts_cut=texts_cut,
 texts_vec = text2vec(texts_cut=texts_cut,
                      model_word2vec=model_word2vec,
                      merge=True)
-print('texts_vec:\n', texts_vec)
 
 texts_vec:
  [[ 0.05730793  0.01469728  0.03473849  0.04489793]
@@ -41,7 +40,7 @@ texts_vec:
 ``` python
 x = np.array([1, 1])
 y = np.array([1, 2])
-print('cos:',cal_cos(x, y))
+cos = cal_cos(x, y)
 
 cos: 0.9486832980505138
 ```
