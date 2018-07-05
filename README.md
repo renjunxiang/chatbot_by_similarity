@@ -48,9 +48,9 @@ cos: 0.9486832980505138
 **聊天机器人的训练与使用(chatbot.py)**：整合前三个步骤，计算问题和知识库每一条知识的相似度，返回排名靠前的知识<br>
 
 ### 模块用法
-只需要调用chatbot.py的功能即可，具体参考demo_train.py、demo_ask&answer.py，其中训练语料是一些word文档自行准备，model_word_document.pkl是训练好的模型可以直接使用，我的知识库比较简陋<br>
+只需要调用chatbot.py的功能即可，具体参考demo_train.py、demo_ask&answer.py，其中训练语料是一些word文档自行准备，model_word_document.pkl是训练好的一个简单模型用于测试<br>
 **train**：训练语料库，输入文本列表 texts=[xxx,xxx]<br>
-**get_answer**：获取答案，输入 ask=问题、threshold=相似度阈值、topn返回知识数量<br>
+**get_answer**：获取答案，输入 ask=问题、threshold=相似度阈值、topn=返回知识数量<br>
 ``` python
 from chatbot import chatbot
 
