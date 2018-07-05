@@ -28,5 +28,4 @@ def cut_texts(texts=None, need_cut=True, word_len=1):
 
 if __name__ == '__main__':
     texts = ['我爱北京天安门', '我爱北京长城']
-    print('texts:', texts)
     print('results:', cut_texts(texts=texts, need_cut=True, word_len=2))
