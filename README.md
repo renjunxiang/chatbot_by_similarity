@@ -40,24 +40,26 @@ texts_vec:
 
 ```
 **计算相似度(cal_similarity.py)**：<br>
-目前只写了最简单的余弦值，空闲的话会考虑加入余弦修正、通过监督学习计算相似度<br>
+目前只写了余弦值，余弦修正、和欧氏距离，有机会的话会考虑通过监督学习计算相似度<br>
 ``` python
 x = np.array([1, 1])
 y = np.array([1, 2])
-cos = cal_cos(x, y)
+cos = cal_similarity(x, y, mode='cos')
+Euclidean = cal_similarity(x, y, mode='Euclidean')
 
 cos: 0.9486832980505138
+Euclidean: 1.0
 ```
 **聊天机器人的训练与使用(chatbot.py)**：<br>
 整合前三个步骤，计算问题和知识库每一条知识的相似度，返回排名靠前的知识。实际使用中只需要调用chatbot.py的功能即可，具体参考demo_train.py、demo_ask&answer.py，可以调整前三个步骤的算法实现优化。我的训练语料是一些word文档，model_word_document.pkl是训练好的一个简单模型。<br>
 **train**：训练语料库，输入文本列表 texts=[xxx,xxx]<br>
-**get_answer**：获取答案，输入 ask=问题、threshold=相似度阈值、topn=返回知识数量<br>
+**get_answer**：获取答案，输入 ask=问题、mode=相似度计算方法、modify=是否进行余弦修正、threshold=相似度阈值、topn=返回知识数量<br>
 ``` python
 from chatbot import chatbot
 
 texts = ['我爱北京天安门', '我爱北京长城']
 chatbot_try = chatbot()
 chatbot_try.train(texts=texts)
-answer=chatbot_try.get_answer(ask=ask, threshold=0, topn=5)
+answer=chatbot_try.get_answer(ask=ask, mode='cos', modify=False, threshold=0, topn=5)
 ```
 ![](https://github.com/renjunxiang/chatbot_by_similarity/blob/master/picture/chatbot.jpg)<br>

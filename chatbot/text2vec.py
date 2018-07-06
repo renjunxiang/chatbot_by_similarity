@@ -30,10 +30,18 @@ def text2vec(texts_cut=None,
     :param merge: If Ture, calculate sentence average vector
     :return:
     '''
+    # texts_vec = []
+    # for text_cut in texts_cut:
+    #     text_vec = []
+    #     for word in text_cut:
+    #         if word in model_word2vec:
+    #             text_vec.append(model_word2vec[word])
+    #     if text_vec == []:
+    #         text_vec = [[]]
+    #     texts_vec.append(text_vec)
     texts_vec = [[model_word2vec[word] for word in text_cut if word in model_word2vec] for text_cut in texts_cut]
     if merge:
-        # 避免句子长度为0报错
-        return np.array([sum(i) / max(len(i), 1.0) for i in texts_vec])
+        return np.array([np.array(i).mean(axis=0) for i in texts_vec])
     else:
         return texts_vec
 
@@ -47,5 +55,5 @@ if __name__ == '__main__':
                                 min_count=1)
     texts_vec = text2vec(texts_cut=texts_cut,
                          model_word2vec=model_word2vec,
-                         merge=True)
+                         merge=False)
     print('texts_vec:\n', texts_vec)

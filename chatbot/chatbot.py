@@ -1,6 +1,5 @@
-from . import cut_texts, creat_dict, text2vec, cal_cos
+from . import cut_texts, creat_dict, text2vec, cal_similarity
 import pandas as pd
-import numpy as np
 
 
 class chatbot():
@@ -42,10 +41,17 @@ class chatbot():
                              merge=True)
         self.texts_vec = texts_vec
 
-    def get_answer(self, ask='', threshold=0.0, topn=2):
+    def get_answer(self,
+                   ask='',
+                   mode='cos',
+                   modify=False,
+                   threshold=0.0,
+                   topn=2):
         '''
         根据问题找到相似内容
         :param ask: str,问题
+        :param mode: str,'cos' or 'Euclidean',相似度计算方法
+        :param modify: bool,是否进行余弦修正
         :param threshold: float,相似度阈值
         :param topn: int,返回的答案数
         :return:
@@ -61,21 +67,19 @@ class chatbot():
                            merge=True)
 
         # 计算问题和知识库每句话的余弦值,部分不能计算的余弦值记为-999
-        cos_all = []
+        similarity_all = []
         for i in self.texts_vec:
-            cos_one = cal_cos(v1=ask_vec[0], v2=i)
-            # if type(cos_one) == np.ndarray:
-            #     cos_one = -999.0
-            cos_all.append(cos_one)
+            similarity_one = cal_similarity(v1=ask_vec[0], v2=i, mode=mode, modify=modify)
+            similarity_all.append(similarity_one)
 
-        text_cos = pd.DataFrame({'text': self.texts_all,
-                                 'cos': cos_all},
-                                columns=['text', 'cos'])
+        text_similarity = pd.DataFrame({'text': self.texts_all,
+                                        'similarity': similarity_all},
+                                       columns=['text', 'similarity'])
         # 按余弦值从高到低排序
-        text_cos_sort = text_cos.sort_values(by='cos', ascending=False)
+        text_cos_sort = text_similarity.sort_values(by='similarity', ascending=False)
 
         # 筛选出余弦值大于阈值，前几个答案
-        ask_same = list(text_cos_sort.loc[text_cos_sort['cos'] >= threshold, 'text'])[:topn]
+        ask_same = list(text_cos_sort.loc[text_cos_sort['similarity'] >= threshold, 'text'])[:topn]
         if ask_same == []:
             print('没有找到匹配的内容')
         else:
