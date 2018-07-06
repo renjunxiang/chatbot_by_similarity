@@ -5,6 +5,7 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
+
 class chatbot():
     def __init__(self):
         self.texts_all = []
@@ -70,25 +71,27 @@ class chatbot():
                            model_word2vec=self.model_word2vec,
                            merge=True)
 
-        # 计算问题和知识库每句话的余弦值,部分不能计算的余弦值记为-999
+        # 计算问题和知识库每句话的余弦值,部分不能计算的相似度记为-999
         similarity_all = []
         if modify:
             texts_vec_use = np.array([i for i in texts_vec if type(i) == np.ndarray])
             texts_vec_mean = texts_vec_use.mean(axis=0)
             for i in texts_vec:
-                # 出现空向量则相似度记为-999
+                # 出现nan则相似度记为-999
                 if type(ask_vec[0]) != np.ndarray or type(i) != np.ndarray:
                     similarity_one = -999.0
                 else:
-                    similarity_one = cal_similarity(v1=ask_vec[0] - texts_vec_mean, v2=i - texts_vec_mean)
+                    similarity_one = cal_similarity(v1=ask_vec[0] - texts_vec_mean,
+                                                    v2=i - texts_vec_mean,
+                                                    mode=mode)
                 similarity_all.append(similarity_one)
         else:
             for i in texts_vec:
-                # 出现空向量则相似度记为-999
+                # 出现nan则相似度记为-999
                 if type(ask_vec[0]) != np.ndarray or type(i) != np.ndarray:
                     similarity_one = -999.0
                 else:
-                    similarity_one = cal_similarity(v1=ask_vec[0], v2=i)
+                    similarity_one = cal_similarity(v1=ask_vec[0], v2=i, mode=mode)
                 similarity_all.append(similarity_one)
 
         text_similarity = pd.DataFrame({'text': self.texts_all,
@@ -98,10 +101,10 @@ class chatbot():
         text_similarity_sort = text_similarity.sort_values(by='similarity', ascending=False)
 
         # 筛选出余弦值大于阈值，前几个答案
-        ask_same = list(text_similarity_sort.loc[text_similarity_sort['similarity'] >= threshold, 'text'])[:topn]
-        if ask_same == []:
+        ask_samilarity = list(text_similarity_sort.loc[text_similarity_sort['similarity'] >= threshold, 'text'])[:topn]
+        if ask_samilarity == []:
             print('没有找到匹配的内容')
         else:
             print('按照匹配得分从高到低，您的问题 “%s” 和知识库的这些内容相关：\n' % (ask))
-            for n, i in enumerate(ask_same):
+            for n, i in enumerate(ask_samilarity):
                 print('知识%d: %s' % (n + 1, i))
