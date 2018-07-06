@@ -1,6 +1,8 @@
 from gensim.models import word2vec
 import numpy as np
+import warnings
 
+warnings.filterwarnings('ignore')
 
 def creat_dict(texts_cut=None,
                sg=1,

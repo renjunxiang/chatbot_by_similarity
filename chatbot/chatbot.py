@@ -1,6 +1,9 @@
 from . import cut_texts, creat_dict, text2vec, cal_similarity
 import pandas as pd
+import numpy as np
+import warnings
 
+warnings.filterwarnings('ignore')
 
 class chatbot():
     def __init__(self):
@@ -56,6 +59,7 @@ class chatbot():
         :param topn: int,返回的答案数
         :return:
         '''
+        texts_vec = self.texts_vec
         # 对问题分词
         ask_cut = cut_texts(texts=[ask],
                             need_cut=True,
@@ -68,18 +72,33 @@ class chatbot():
 
         # 计算问题和知识库每句话的余弦值,部分不能计算的余弦值记为-999
         similarity_all = []
-        for i in self.texts_vec:
-            similarity_one = cal_similarity(v1=ask_vec[0], v2=i, mode=mode, modify=modify)
-            similarity_all.append(similarity_one)
+        if modify:
+            texts_vec_use = np.array([i for i in texts_vec if type(i) == np.ndarray])
+            texts_vec_mean = texts_vec_use.mean(axis=0)
+            for i in texts_vec:
+                # 出现空向量则相似度记为-999
+                if type(ask_vec[0]) != np.ndarray or type(i) != np.ndarray:
+                    similarity_one = -999.0
+                else:
+                    similarity_one = cal_similarity(v1=ask_vec[0] - texts_vec_mean, v2=i - texts_vec_mean)
+                similarity_all.append(similarity_one)
+        else:
+            for i in texts_vec:
+                # 出现空向量则相似度记为-999
+                if type(ask_vec[0]) != np.ndarray or type(i) != np.ndarray:
+                    similarity_one = -999.0
+                else:
+                    similarity_one = cal_similarity(v1=ask_vec[0], v2=i)
+                similarity_all.append(similarity_one)
 
         text_similarity = pd.DataFrame({'text': self.texts_all,
                                         'similarity': similarity_all},
                                        columns=['text', 'similarity'])
         # 按余弦值从高到低排序
-        text_cos_sort = text_similarity.sort_values(by='similarity', ascending=False)
+        text_similarity_sort = text_similarity.sort_values(by='similarity', ascending=False)
 
         # 筛选出余弦值大于阈值，前几个答案
-        ask_same = list(text_cos_sort.loc[text_cos_sort['similarity'] >= threshold, 'text'])[:topn]
+        ask_same = list(text_similarity_sort.loc[text_similarity_sort['similarity'] >= threshold, 'text'])[:topn]
         if ask_same == []:
             print('没有找到匹配的内容')
         else:
