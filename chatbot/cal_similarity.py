@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def cal_similarity(v1, v2, mode='cos'):
+def cal_similarity(v1, v2, similarity='cos'):
     """
     计算余弦相似度
     :param v1: 第一个向量
@@ -10,10 +10,10 @@ def cal_similarity(v1, v2, mode='cos'):
     :return: 余弦相似度
     """
 
-    if mode == 'cos':
+    if similarity == 'cos':
         cos = np.dot(v1, v2) / (np.linalg.norm(v1) * np.linalg.norm(v2))
         return cos
-    elif mode == 'Euclidean':
+    elif similarity == 'Euclidean':
         Euclidean = np.linalg.norm(v2 - v1)
         return Euclidean
     else:
@@ -23,5 +23,5 @@ def cal_similarity(v1, v2, mode='cos'):
 if __name__ == '__main__':
     x = np.array([1, 2])
     y = np.array([1, 1])
-    print('cos:', cal_similarity(x, y, mode='cos'))
-    print('Euclidean:', cal_similarity(x, y, mode='Euclidean'))
+    print('cos:', cal_similarity(x, y, similarity='cos'))
+    print('Euclidean:', cal_similarity(x, y, similarity='Euclidean'))
