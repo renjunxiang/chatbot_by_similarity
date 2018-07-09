@@ -40,6 +40,7 @@ class chatbot():
         texts_cut = cut_texts(texts=texts_all,
                               need_cut=True,
                               word_len=word_len)
+        print('finish cut texts')
 
         # 训练词向量
         model_word2vec = creat_dict(texts_cut=texts_cut,
@@ -48,16 +49,18 @@ class chatbot():
                                     window=5,
                                     min_count=1)
         self.model_word2vec = model_word2vec
+        print('finish word2vec')
 
         # 计算句向量
         texts_vec = text2vec(texts_cut=texts_cut,
                              model_word2vec=model_word2vec,
                              merge=True)
         self.texts_vec = texts_vec
+        print('finish text2vec')
 
     def get_answer(self,
                    ask='',
-                   mode='knowledge',
+                   sample=50000,
                    similarity='cos',
                    modify=False,
                    threshold=0.0,
@@ -65,6 +68,7 @@ class chatbot():
         '''
         根据问题找到相似内容
         :param ask: str,问题
+        :param sample: int,答案抽样数量,避免计算过慢
         :param similarity: str,'cos' or 'Euclidean',相似度计算方法
         :param modify: bool,是否进行余弦修正
         :param threshold: float,相似度阈值
@@ -74,13 +78,17 @@ class chatbot():
         mode = self.mode
         if mode == 'chat':
             threshold = -2
-            topn = 5
             word_len = 1
         elif mode == 'knowledge':
             word_len = 2
         else:
             raise ValueError('mode should be knowledge or chat')
         texts_vec = self.texts_vec
+        texts_all = self.texts_all
+        if len(texts_vec)>sample:
+            start_index=random.sample(range(len(texts_vec)-sample),1)[0]
+            texts_vec=texts_vec[start_index:start_index+sample]
+            texts_all=texts_all[start_index:start_index+sample]
         # 对问题分词
         ask_cut = cut_texts(texts=[ask],
                             need_cut=True,
@@ -114,7 +122,6 @@ class chatbot():
                     similarity_one = cal_similarity(v1=ask_vec[0], v2=i, similarity=similarity)
                 similarity_all.append(similarity_one)
 
-        texts_all = self.texts_all
         texts_index = np.arange(len(texts_all))
         text_similarity = pd.DataFrame({'texts_index': texts_index,
                                         'similarity': similarity_all},
@@ -134,10 +141,13 @@ class chatbot():
                 for n, i in enumerate(ask_samilarity_index):
                     print('知识%d: %s' % (n + 1, texts_all[i]))
         elif mode == 'chat':
-            ask_samilarity_index_random = random.sample(ask_samilarity_index, 1)[0]
-            # 避免抽中最后一个
-            while ask_samilarity_index_random == len(texts_all):
+            if ask_samilarity_index == []:
+                print('不明白你在说什么==！')
+            else:
                 ask_samilarity_index_random = random.sample(ask_samilarity_index, 1)[0]
-            print(texts_all[ask_samilarity_index_random + 1])
+                # 避免抽中最后一个
+                while ask_samilarity_index_random == len(texts_all):
+                    ask_samilarity_index_random = random.sample(ask_samilarity_index, 1)[0]
+                print(texts_all[ask_samilarity_index_random + 1])
         else:
             pass

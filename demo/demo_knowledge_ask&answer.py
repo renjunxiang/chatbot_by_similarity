@@ -36,6 +36,6 @@ while state:
                                         similarity='cos',
                                         modify=False,
                                         threshold=0,
-                                        topn=5)
+                                        topn=3)
 
     print('\n----------------我是分割线----------------\n')
