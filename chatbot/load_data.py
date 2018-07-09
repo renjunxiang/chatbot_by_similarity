@@ -47,3 +47,4 @@ def load_data(type='chat'):
                 except Exception as e:
                     print('错误：' + folder_path + '/' + file_path)
                     texts.append('')
+        return texts

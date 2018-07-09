@@ -137,7 +137,7 @@ class chatbot():
             if ask_samilarity_index == []:
                 return ['没有找到匹配的内容']
             else:
-                return [ask_samilarity_index[i] for i in ask_samilarity_index]
+                return [texts_all[i] for i in ask_samilarity_index]
         elif mode == 'chat':
             if ask_samilarity_index == []:
                 return '不明白你在说什么==！'

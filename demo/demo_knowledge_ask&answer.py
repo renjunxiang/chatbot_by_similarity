@@ -24,6 +24,6 @@ while state:
                                         topn=3)
         print('按照匹配得分从高到低，您的问题 “%s” 和知识库的这些内容相关：\n' % (ask))
         for n, i in enumerate(answer):
-            print('知识%d: %s' % (n + 1, texts_all[i]))
+            print('知识%d: %s' % (n + 1, i))
 
     print('\n----------------我是分割线----------------\n')

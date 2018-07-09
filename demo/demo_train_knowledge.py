@@ -1,5 +1,6 @@
 from chatbot import chatbot
 import pickle
+from chatbot import load_data
 
 texts = load_data(type='knowledge')
 
