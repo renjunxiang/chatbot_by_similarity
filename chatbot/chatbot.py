@@ -76,19 +76,19 @@ class chatbot():
         :return:
         '''
         mode = self.mode
+        texts_vec = self.texts_vec
+        texts_all = self.texts_all
         if mode == 'chat':
             threshold = -2
             word_len = 1
+            if len(texts_vec) > sample:
+                start_index = random.sample(range(len(texts_vec) - sample), 1)[0]
+                texts_vec = texts_vec[start_index:start_index + sample]
+                texts_all = texts_all[start_index:start_index + sample]
         elif mode == 'knowledge':
             word_len = 2
         else:
             raise ValueError('mode should be knowledge or chat')
-        texts_vec = self.texts_vec
-        texts_all = self.texts_all
-        if len(texts_vec)>sample:
-            start_index=random.sample(range(len(texts_vec)-sample),1)[0]
-            texts_vec=texts_vec[start_index:start_index+sample]
-            texts_all=texts_all[start_index:start_index+sample]
         # 对问题分词
         ask_cut = cut_texts(texts=[ask],
                             need_cut=True,
@@ -135,19 +135,17 @@ class chatbot():
 
         if mode == 'knowledge':
             if ask_samilarity_index == []:
-                print('没有找到匹配的内容')
+                return ['没有找到匹配的内容']
             else:
-                print('按照匹配得分从高到低，您的问题 “%s” 和知识库的这些内容相关：\n' % (ask))
-                for n, i in enumerate(ask_samilarity_index):
-                    print('知识%d: %s' % (n + 1, texts_all[i]))
+                return [ask_samilarity_index[i] for i in ask_samilarity_index]
         elif mode == 'chat':
             if ask_samilarity_index == []:
-                print('不明白你在说什么==！')
+                return '不明白你在说什么==！'
             else:
                 ask_samilarity_index_random = random.sample(ask_samilarity_index, 1)[0]
                 # 避免抽中最后一个
                 while ask_samilarity_index_random == len(texts_all):
                     ask_samilarity_index_random = random.sample(ask_samilarity_index, 1)[0]
-                print(texts_all[ask_samilarity_index_random + 1])
+                return texts_all[ask_samilarity_index_random + 1]
         else:
             pass

@@ -3,22 +3,7 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-bye = '''
-    　　 へ　　　　　／|
-　　/＼7　　　 ∠＿/
-　 /　│　　 ／　／
-　│　Z ＿,＜　／　　 /`ヽ
-　│　　　　　ヽ　　 /　　〉
-　 Y　　　　　`　 /　　/
-　ｲ●　､　●　　⊂⊃〈　　/
-　()　 へ　　　　|　＼〈
-　　>ｰ ､_　 ィ　 │ ／／
-　 / へ　　 /　ﾉ＜| ＼＼
-　 ヽ_ﾉ　　(_／　 │／／
-　　7　　　　　　　|／
-　　＞―r￣￣`ｰ―＿
-。
-    '''
+bye = '很高兴为您服务，再见！'
 
 with open('./model_word_document.pkl', mode='rb') as f:
     chatbot_try = pickle.load(f)
@@ -37,5 +22,8 @@ while state:
                                         modify=False,
                                         threshold=0,
                                         topn=3)
+        print('按照匹配得分从高到低，您的问题 “%s” 和知识库的这些内容相关：\n' % (ask))
+        for n, i in enumerate(answer):
+            print('知识%d: %s' % (n + 1, texts_all[i]))
 
     print('\n----------------我是分割线----------------\n')
