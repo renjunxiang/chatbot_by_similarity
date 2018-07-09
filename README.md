@@ -12,7 +12,18 @@
 ## **模块简介**
 用法比较简单，给文本列表，经过训练后去匹配问题返回相似的答案。<br>
 ### **结构及用法**
-模块由四个部分构成：预处理分词、计算词向量、计算相似度和聊天机器人<br><br>
+模块由五个部分构成：测试数据、预处理分词、计算词向量、计算相似度和聊天机器人<br><br>
+**文本的预处理(cut_text.py)**：<br>
+提供知识库的word文档数据和小黄鸡聊天记录<br>
+``` python
+from chatbot import load_data
+
+# word数据
+texts = load_data(type='knowledge')
+
+# 小黄鸡数据
+texts = load_data(type='chat')
+```
 **文本的预处理(cut_text.py)**：<br>
 用于分词、剔除停用词(这里偷懒直接把长度为1的剔除)<br>
 ``` python
