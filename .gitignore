@@ -2,3 +2,4 @@
 *.xml
 *.pyc
 *.pkl
+chatbot/chatbot_queue.py
