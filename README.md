@@ -1,9 +1,9 @@
 # chatbot_by_similarity
-[![](https://img.shields.io/badge/Python-3.5-blue.svg)](https://www.python.org/)
-[![](https://img.shields.io/badge/pandas-0.21.0-brightgreen.svg)](https://pypi.python.org/pypi/pandas/0.21.0)
-[![](https://img.shields.io/badge/numpy-1.13.1-brightgreen.svg)](https://pypi.python.org/pypi/numpy/1.13.1)
+[![](https://img.shields.io/badge/Python-3.5,3.6-blue.svg)](https://www.python.org/)
+[![](https://img.shields.io/badge/pandas-0.23.0-brightgreen.svg)](https://pypi.python.org/pypi/pandas/0.23.0)
+[![](https://img.shields.io/badge/numpy-1.14.3-brightgreen.svg)](https://pypi.python.org/pypi/numpy/1.14.3)
 [![](https://img.shields.io/badge/jieba-0.39-brightgreen.svg)](https://pypi.python.org/pypi/jieba/0.39)
-[![](https://img.shields.io/badge/gensim-3.2.0-brightgreen.svg)](https://pypi.python.org/pypi/gensim/3.2.0)<br>
+[![](https://img.shields.io/badge/gensim-3.4.0-brightgreen.svg)](https://pypi.python.org/pypi/gensim/3.4.0)<br>
 根据文本相似度实现问答的聊天机器人（弱智版）
 
 ## **项目介绍**
@@ -64,14 +64,17 @@ Euclidean: 1.0
 **聊天机器人的训练与使用(chatbot.py)**：<br>
 整合前三个步骤，计算问题和知识库每一条知识的相似度，返回排名靠前的知识。实际使用中只需要调用chatbot.py的功能即可，具体参考demo_train.py、demo_ask&answer.py，可以调整前三个步骤的算法实现优化。我的训练语料是一些word文档，model_word_document.pkl是训练好的一个简单模型。<br>
 **train**：训练语料库，输入 texts=文本列表、mode=模式<br>
-**get_answer**：获取答案，输入 ask=问题、mode=相似度计算方法、modify=是否进行余弦修正、threshold=相似度阈值、topn=返回知识数量<br>
+**get_answer**：获取答案，参数 ask=问题、sample=抽样匹配数、mode=相似度计算方法、modify=是否进行余弦修正、threshold=相似度阈值、topn=返回知识数量、process_num=进程数<br>
+数据量大循环计算相似度会很慢，写了多进程，不知道为什么用queue存储会堵塞，就改成每个进程保存计算结果<br>
+数据量不大的时候IO更耗时，建议process_num=1就好<br>
+数据量大的时候计算更耗时，建议根据cpu数量开多进程会快很多<br>
 ``` python
 from chatbot import chatbot
 
 texts = ['我爱北京天安门', '我爱北京长城']
 chatbot_try = chatbot()
 chatbot_try.train(texts=texts)
-answer=chatbot_try.get_answer(ask=ask, mode='cos', modify=False, threshold=0, topn=5)
+answer=chatbot_try.get_answer(ask=ask, sample=50000, mode='cos', modify=False, threshold=0, topn=5, process_num=10)
 ```
 **知识库的问答**<br>
 ![](https://github.com/renjunxiang/chatbot_by_similarity/blob/master/picture/chatbot_knowledge.jpg)<br><br>

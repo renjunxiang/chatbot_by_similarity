@@ -3,16 +3,18 @@ import pandas as pd
 import numpy as np
 import random
 import warnings
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue,Lock
 import pickle
 
 warnings.filterwarnings('ignore')
 
 
-def mul_cal_similarities(v, v_list, v_list_index, similarity, modify, path):
+def mul_cal_similarities(v, v_list, v_list_index, similarity, modify, queue,lock):
     similarity_all = cal_similarities(v, v_list, similarity, modify)
-    with open(path, mode='wb') as f:
-        pickle.dump([v_list_index, similarity_all], f)
+    lock.acquire()
+    for i in range(len(v_list)):
+        queue.put([v_list_index[i],similarity_all[i]])
+    lock.release()
 
 
 class chatbot():
@@ -134,14 +136,15 @@ class chatbot():
                 texts_vec_cut.append(texts_vec[index_start:(index_start + sample)])
                 len_n = len(texts_vec[index_start:(index_start + sample)])
                 index_all_cut.append(range(index_start, index_start + min(len_n, sample)))
-                index_start += sample
+                index_start += index_start + sample
                 if index_start > len(texts_vec):
                     process_num = i + 1
                     break
 
             # 创建子进程
             # print('start multiprocessing')
-            queue = Queue()
+            queue = Queue()#超过800卡死
+            lock=Lock()
             process_list = []
             for i in range(process_num):
                 po = Process(target=mul_cal_similarities,
@@ -150,7 +153,8 @@ class chatbot():
                                      'v_list_index': index_all_cut[i],
                                      'similarity': similarity,
                                      'modify': modify,
-                                     'path': './' + str(i) + '.pkl'})
+                                     'queue': queue,
+                                     'lock': lock})
                 process_list.append(po)
             # 启动子进程
             for process in process_list:
@@ -160,15 +164,14 @@ class chatbot():
                 process.join()
             # print('finish multiprocessing')
 
-            texts_index = []
-            similarity_all = []
-            for i in range(process_num):
-                with open('./' + str(i) + '.pkl', mode='rb') as f:
-                    r = pickle.load(f)
-                    texts_index += r[0]
-                    similarity_all += r[1]
-            text_similarity = pd.DataFrame({'texts_index': texts_index,
-                                            'similarity': similarity_all},
+            similarity_all=[]
+            while 1:
+                try:
+                    similarity_one = queue.get_nowait()
+                    similarity_all.append(similarity_one)
+                except:
+                    break
+            text_similarity = pd.DataFrame(similarity_all,
                                            columns=['texts_index', 'similarity'])
 
         else:
