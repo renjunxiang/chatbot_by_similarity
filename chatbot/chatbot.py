@@ -127,31 +127,25 @@ class chatbot():
         # 多进程分块计算相似度
         elif process_num > 1:
             index_start = 0
-            texts_vec_cut = []
-            index_all_cut = []
-            # 数据分块
+            process_list = []
+            # 数据分块+创建子进程
             for i in range(process_num):
-                texts_vec_cut.append(texts_vec[index_start:(index_start + sample)])
                 len_n = len(texts_vec[index_start:(index_start + sample)])
-                index_all_cut.append(range(index_start, index_start + min(len_n, sample)))
+                texts_vec_part = texts_vec[index_start:(index_start + sample)]
+                v_list_index = list(range(index_start, index_start + min(len_n, sample)))
+                po = Process(target=mul_cal_similarities,
+                             kwargs={'v': ask_vec[0],
+                                     'v_list': texts_vec_part,
+                                     'v_list_index': v_list_index,
+                                     'similarity': similarity,
+                                     'modify': modify,
+                                     'path': './' + str(i) + '.pkl'})
+                process_list.append(po)
                 index_start += sample
                 if index_start > len(texts_vec):
                     process_num = i + 1
                     break
 
-            # 创建子进程
-            # print('start multiprocessing')
-            queue = Queue()
-            process_list = []
-            for i in range(process_num):
-                po = Process(target=mul_cal_similarities,
-                             kwargs={'v': ask_vec[0],
-                                     'v_list': texts_vec_cut[i],
-                                     'v_list_index': index_all_cut[i],
-                                     'similarity': similarity,
-                                     'modify': modify,
-                                     'path': './' + str(i) + '.pkl'})
-                process_list.append(po)
             # 启动子进程
             for process in process_list:
                 process.start()
@@ -192,7 +186,7 @@ class chatbot():
             else:
                 ask_samilarity_index_random = random.sample(ask_samilarity_index, 1)[0]
                 # 避免抽中最后一个
-                while ask_samilarity_index_random == len(texts_all):
+                while ask_samilarity_index_random == len(texts_all) - 1:
                     ask_samilarity_index_random = random.sample(ask_samilarity_index, 1)[0]
                 return texts_all[ask_samilarity_index_random + 1]
         else:

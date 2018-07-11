@@ -44,7 +44,7 @@ if __name__ == '__main__':
             else:
 
                 answer = chatbot_try.get_answer(ask=ask,
-                                                sample=500000,
+                                                sample=50000,
                                                 similarity='cos',
                                                 modify=False,
                                                 threshold=0,
