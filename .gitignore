@@ -3,3 +3,4 @@
 *.pyc
 *.pkl
 chatbot/chatbot_queue.py
+try.py
