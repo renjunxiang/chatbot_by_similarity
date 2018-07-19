@@ -2,7 +2,7 @@ import re
 import os
 import docx
 
-localpath = os.path.dirname(__file__)
+localpath = DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def _docx2text(file_path=None):
